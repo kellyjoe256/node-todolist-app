@@ -4,6 +4,9 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const dbConfig = require('./config/database.config.js');
 
+// Task routes
+const taskRoutes = require('./app/routes/task.routes');
+
 // create express app
 const app = express();
 
@@ -25,6 +28,9 @@ mongoose.connect(dbConfig.url, dbConfig.options).then(() => {
     console.log('Could not connect to the database. Exiting now...', err);
     process.exit();
 });
+
+// Apply routes
+app.use('/tasks', taskRoutes);
 
 // define entry route
 app.get('/', (req, res) => {

@@ -29,13 +29,13 @@ mongoose.connect(dbConfig.url, dbConfig.options).then(() => {
     process.exit();
 });
 
-// Apply routes
-app.use('/tasks', taskRoutes);
+// Apply task routes
+app.use('/api/tasks', taskRoutes);
 
 // define entry route
 app.get('/', (req, res) => {
     const response = { 
-        message: `Welcome to my simple todolist application` ,
+        message: `Welcome to my simple todolist application...` ,
     };
 
     res.json(response);

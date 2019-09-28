@@ -18,6 +18,7 @@ const setTitleErrorMessages = function (errors) {
                 break;
 
             case 'string.empty':
+            case 'any.required':
                 error.message = 'Title is required';
                 break;
 
@@ -34,6 +35,10 @@ const setPriorityErrorMessages = function (errors) {
         switch (error.code) {
             case 'any.only':
                 error.message = 'Priority must either be low, medium, or high';
+                break;
+
+            case 'any.required':
+                error.message = 'Priority is required';
                 break;
 
             default:
@@ -71,7 +76,7 @@ const setStartDateErrorMessages = function (errors) {
                 error.message = 'Start date must be a valid date';
                 break;
 
-            case 'string.empty':
+            case 'any.required':
                 error.message = 'Start date is required';
                 break;
 
@@ -90,7 +95,7 @@ const setDueDateErrorMessages = function (errors) {
                 error.message = 'Due date must be a valid date';
                 break;
 
-            case 'string.empty':
+            case 'any.required':
                 error.message = 'Due date is required';
                 break;
 

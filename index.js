@@ -1,11 +1,11 @@
+const config = require('config');
 const morgan = require('morgan');
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const dbConfig = require('./config/database.config');
 
 // Task routes
-const taskRoutes = require('./app/routes/task.routes');
+const taskRoutes = require('./routes/task.routes');
 
 // create express app
 const app = express();
@@ -22,8 +22,12 @@ app.use(morgan('tiny'));
 mongoose.Promise = global.Promise;
 
 // Connecting to the database
+const dbURI = config.has('mongo.uri')
+    ? config.get('mongo.uri')
+    : 'mongodb://localhost:27017/todoapp';
+
 mongoose
-    .connect(dbConfig.url, dbConfig.options)
+    .connect(dbURI, config.get('mongo.options'))
     .then(() => {
         console.log('Successfully connected to the database...');
     })

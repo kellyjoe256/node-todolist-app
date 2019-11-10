@@ -1,11 +1,12 @@
+const config = require('config');
 const Task = require('../models/task.model');
 const helpers = require('../helpers/functions.helpers');
-const validatorConfig = require('../../config/input_validator.config');
 const createSchema = require('../validators/task/create_task.validator');
 const updateSchema = require('../validators/task/update_task.validator');
 
 const keys = ['title', 'priority', 'completed', 'start_date', 'due_date'];
 
+/* eslint-disable comma-dangle */
 /* eslint-disable consistent-return */
 module.exports = {
     // Retrieve and return all tasks from the database
@@ -30,7 +31,10 @@ module.exports = {
 
     // Create and save a new task
     create: (req, res) => {
-        const result = createSchema.validate(req.body, validatorConfig.options);
+        const result = createSchema.validate(
+            req.body,
+            config.get('joi.options')
+        );
         if (result.error) {
             return res
                 .status(400)
@@ -115,7 +119,10 @@ module.exports = {
     update: (req, res) => {
         const taskId = req.params.id;
 
-        const result = updateSchema.validate(req.body, validatorConfig.options);
+        const result = updateSchema.validate(
+            req.body,
+            config.get('joi.options')
+        );
         if (result.error) {
             return res
                 .status(400)

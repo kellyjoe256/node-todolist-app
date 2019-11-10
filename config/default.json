@@ -1,0 +1,14 @@
+{
+    "mongo": {
+        "options": {
+            "useNewUrlParser": true,
+            "useUnifiedTopology": true,
+            "useFindAndModify": false
+        }
+    },
+    "joi": {
+        "options": {
+            "abortEarly": false
+        }
+    }
+}

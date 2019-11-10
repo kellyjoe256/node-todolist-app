@@ -1,11 +1,12 @@
 const express = require('express');
+
 const router = express.Router();
 
 const taskController = require('../controllers/task.controllers');
 
 // Retrieve all Tasks
 router.get('/', taskController.getAll);
-    
+
 // Create a new Task
 router.post('/', taskController.create);
 

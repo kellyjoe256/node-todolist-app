@@ -4,14 +4,9 @@ const validatorConfig = require('../../config/input_validator.config');
 const createSchema = require('../validators/task/create_task.validator');
 const updateSchema = require('../validators/task/update_task.validator');
 
-const keys = [
-    'title',
-    'priority',
-    'completed',
-    'start_date',
-    'due_date'
-];
+const keys = ['title', 'priority', 'completed', 'start_date', 'due_date'];
 
+/* eslint-disable consistent-return */
 module.exports = {
     // Retrieve and return all tasks from the database
     getAll: (req, res) => {
@@ -21,9 +16,10 @@ module.exports = {
 
         Task.find(search, projection)
             .sort(sort)
-            .then(tasks => {
+            .then((tasks) => {
                 res.send(tasks);
-            }).catch(err => {
+            })
+            .catch((err) => {
                 const message = err.message || 'An error occurred';
 
                 res.status(500).send({
@@ -36,7 +32,8 @@ module.exports = {
     create: (req, res) => {
         const result = createSchema.validate(req.body, validatorConfig.options);
         if (result.error) {
-            return res.status(400)
+            return res
+                .status(400)
                 .send(helpers.formatValidationErrors(result.error));
         }
 
@@ -51,18 +48,20 @@ module.exports = {
         const task = new Task(taskContent);
 
         // Save task to the database
-        task.save().then(data => {
-            res.status(201).send(data);
-        }).catch(error => {
-            const message = error.message || 'An error occurred';
+        task.save()
+            .then((data) => {
+                res.status(201).send(data);
+            })
+            .catch((error) => {
+                const message = error.message || 'An error occurred';
 
-            res.status(500).send({
-                error: {
-                    message,
-                    code: 500,
-                },
+                res.status(500).send({
+                    error: {
+                        message,
+                        code: 500,
+                    },
+                });
             });
-        });
     },
 
     // Retrieve a single task with id provided in the request
@@ -79,7 +78,7 @@ module.exports = {
         };
 
         Task.findById(taskId, projection)
-            .then(task => {
+            .then((task) => {
                 if (!task) {
                     return res.status(404).send({
                         error: {
@@ -90,7 +89,8 @@ module.exports = {
                 }
 
                 res.status(200).send(task);
-            }).catch(error => {
+            })
+            .catch((error) => {
                 const message = error.message || 'An error occurred';
 
                 if (error.kind === 'ObjectId') {
@@ -117,7 +117,8 @@ module.exports = {
 
         const result = updateSchema.validate(req.body, validatorConfig.options);
         if (result.error) {
-            return res.status(400)
+            return res
+                .status(400)
                 .send(helpers.formatValidationErrors(result.error));
         }
 
@@ -131,7 +132,7 @@ module.exports = {
 
         // Find task and update it
         Task.findByIdAndUpdate(taskId, taskContent, { new: true })
-            .then(task => {
+            .then((task) => {
                 if (!task) {
                     return res.status(404).send({
                         error: {
@@ -142,7 +143,8 @@ module.exports = {
                 }
 
                 res.status(200).send(task);
-            }).catch(error => {
+            })
+            .catch((error) => {
                 const message = error.message || 'An error occurred';
 
                 if (error.kind === 'ObjectId') {
@@ -168,7 +170,7 @@ module.exports = {
         const taskId = req.params.id;
 
         Task.findByIdAndDelete(taskId)
-            .then(task => {
+            .then((task) => {
                 if (!task) {
                     return res.status(404).send({
                         error: {
@@ -179,7 +181,8 @@ module.exports = {
                 }
 
                 res.status(204).send();
-            }).catch(error => {
+            })
+            .catch((error) => {
                 const message = error.message || 'An error occurred';
 
                 if (error.kind === 'ObjectId' || error.name === 'NotFound') {
@@ -200,4 +203,3 @@ module.exports = {
             });
     },
 };
-

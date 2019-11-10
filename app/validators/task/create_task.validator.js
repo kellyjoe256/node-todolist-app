@@ -12,10 +12,11 @@ module.exports = Joi.object({
         .trim()
         .valid('low', 'medium', 'high')
         .error(customErrorMessages.setPriorityErrorMessages),
-    completed: Joi.boolean()
-        .error(customErrorMessages.setCompletedErrorMessages),
-    start_date: Joi.date()
-        .error(customErrorMessages.setStartDateErrorMessages),
+    completed: Joi.boolean().error(
+        /* eslint-disable comma-dangle */
+        customErrorMessages.setCompletedErrorMessages
+    ),
+    start_date: Joi.date().error(customErrorMessages.setStartDateErrorMessages),
     due_date: Joi.date()
         .required()
         .error(customErrorMessages.setDueDateErrorMessages),

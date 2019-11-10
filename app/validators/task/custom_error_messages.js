@@ -1,114 +1,113 @@
-const setTitleErrorMessages = function (errors) {
-    errors.forEach(error => {
+/* eslint-disable indent */
+/* eslint-disable default-case */
+/* eslint-disable no-param-reassign */
+const setTitleErrorMessages = (errors) => {
+    errors.forEach((error) => {
         let message = '';
 
         switch (error.code) {
-            case 'string.min':
-                message = 'Title must be a minimum of ';
-                message += error.local.limit + ' characters';
+            case 'string.min': {
+                message = `Title must be a minimum of ${error.local.limit} characters`;
 
                 error.message = message;
                 break;
+            }
 
-            case 'string.max':
-                message = 'Title must be less than or equal to ';
-                message += error.local.limit + ' characters';
+            case 'string.max': {
+                message = `Title must be less than or equal to ${error.local.limit} characters`;
 
                 error.message = message;
                 break;
+            }
 
             case 'string.empty':
-            case 'any.required':
+            case 'any.required': {
                 error.message = 'Title is required';
                 break;
-
-            default:
-                break;
+            }
         }
     });
 
     return errors;
 };
 
-const setPriorityErrorMessages = function (errors) {
-    errors.forEach(error => {
+const setPriorityErrorMessages = (errors) => {
+    errors.forEach((error) => {
         switch (error.code) {
-            case 'any.only':
+            case 'any.only': {
                 error.message = 'Priority must either be low, medium, or high';
                 break;
+            }
 
-            case 'any.required':
+            case 'any.required': {
                 error.message = 'Priority is required';
                 break;
-
-            default:
-                break;
+            }
         }
     });
 
     return errors;
 };
 
-const setCompletedErrorMessages = function (errors) {
-    errors.forEach(error => {
+const setCompletedErrorMessages = (errors) => {
+    errors.forEach((error) => {
         switch (error.code) {
             case 'any.only':
-            case 'boolean.base':
+            case 'boolean.base': {
                 error.message = 'Completed must either be true or false';
                 break;
+            }
 
-            case 'any.required':
+            case 'any.required': {
                 error.message = 'Completed is required';
                 break;
-
-            default:
-                break;
+            }
         }
     });
 
     return errors;
 };
 
-const setStartDateErrorMessages = function (errors) {
-    errors.forEach(error => {
+const setStartDateErrorMessages = (errors) => {
+    errors.forEach((error) => {
         switch (error.code) {
-            case 'date.base':
+            case 'date.base': {
                 error.message = 'Start date must be a valid date';
                 break;
+            }
 
-            case 'any.required':
+            case 'any.required': {
                 error.message = 'Start date is required';
                 break;
-
-            default:
-                break;
+            }
         }
     });
 
     return errors;
 };
 
-const setDueDateErrorMessages = function (errors) {
-    errors.forEach(error => {
+const setDueDateErrorMessages = (errors) => {
+    errors.forEach((error) => {
         switch (error.code) {
-            case 'date.base':
+            case 'date.base': {
                 error.message = 'Due date must be a valid date';
                 break;
+            }
 
-            case 'any.required':
+            case 'any.required': {
                 error.message = 'Due date is required';
                 break;
-
-            default:
-                break;
+            }
         }
     });
 
     return errors;
 };
 
-module.exports.setTitleErrorMessages = setTitleErrorMessages;
-module.exports.setCompletedErrorMessages = setCompletedErrorMessages;
-module.exports.setPriorityErrorMessages = setPriorityErrorMessages;
-module.exports.setStartDateErrorMessages = setStartDateErrorMessages;
-module.exports.setDueDateErrorMessages = setDueDateErrorMessages;
+module.exports = {
+    setTitleErrorMessages,
+    setCompletedErrorMessages,
+    setPriorityErrorMessages,
+    setStartDateErrorMessages,
+    setDueDateErrorMessages,
+};

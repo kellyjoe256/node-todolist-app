@@ -2,7 +2,7 @@ const express = require('express');
 
 const router = express.Router();
 
-const taskController = require('../controllers/task.controllers');
+const taskController = require('../app/controllers/task.controllers');
 
 // Retrieve all Tasks
 router.get('/', taskController.getAll);

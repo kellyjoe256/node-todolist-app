@@ -1,5 +1,10 @@
 const objectIsEmpty = (obj) => Object.keys(obj).length === 0;
 
+const escapeRegex = (string) => {
+    const re = /[-[\]{}()*+?.,\\^$|#\s]/g;
+    return string.replace(re, '\\$&');
+};
+
 const formatValidationErrors = (validationErrorObject) => {
     const errors = [];
     validationErrorObject.details.forEach((validationError) => {
@@ -26,7 +31,23 @@ const formatValidationErrors = (validationErrorObject) => {
     return errors;
 };
 
+const generatePaginationMeta = (page, perPage, totalCount) => {
+    const totalPages = Math.ceil(totalCount / perPage);
+
+    return {
+        last_page: totalPages,
+        total_pages: totalPages,
+        current_page: page,
+        previous_page: page - 1,
+        next_page: page + 1,
+        has_previous: page - 1 >= 1,
+        has_next: page + 1 <= totalPages,
+    };
+};
+
 module.exports = {
+    escapeRegex,
     objectIsEmpty,
     formatValidationErrors,
+    generatePaginationMeta,
 };

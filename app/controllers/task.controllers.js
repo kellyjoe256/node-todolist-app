@@ -10,35 +10,47 @@ const keys = ['title', 'priority', 'completed', 'start_date', 'due_date'];
 /* eslint-disable consistent-return */
 module.exports = {
     // Retrieve and return all tasks from the database
-    getAll: (req, res) => {
-        const sort = { due_date: 1 };
+    getAll: async (req, res) => {
+        const { escapeRegex, generatePaginationMeta } = helpers;
+        // handle query string
+        const page = Number(req.query.page) || 1;
+        const perPage = Number(req.query.perPage) || 10;
         const search = {};
-        const projection = { updated_at: 0 };
+        if (req.query.search) {
+            search.title = new RegExp(escapeRegex(req.query.search), 'gi');
+        }
 
-        Task.find(search, projection)
-            .sort(sort)
-            .then((tasks) => {
-                res.send(tasks);
-            })
-            .catch((err) => {
-                const message = err.message || 'An error occurred';
+        try {
+            const sort = { due_date: 1 };
+            const projection = { updated_at: 0 };
+            const totalTasks = await Task.countDocuments(search);
+            const tasks = await Task.find(search, projection)
+                .sort(sort)
+                .limit(perPage)
+                .skip(perPage * page - perPage);
 
-                res.status(500).send({
-                    message,
-                });
+            res.status(206).json({
+                data: tasks,
+                meta: generatePaginationMeta(page, perPage, totalTasks),
             });
+        } catch (error) {
+            res.status(500).json({
+                message: error.message || 'An error occurred',
+            });
+        }
     },
 
     // Create and save a new task
-    create: (req, res) => {
-        const result = createSchema.validate(
+    create: async (req, res) => {
+        const { error: validationError } = createSchema.validate(
             req.body,
             config.get('joi.options')
         );
-        if (result.error) {
+
+        if (validationError) {
             return res
                 .status(400)
-                .send(helpers.formatValidationErrors(result.error));
+                .json(helpers.formatValidationErrors(validationError));
         }
 
         const taskContent = {};
@@ -48,29 +60,24 @@ module.exports = {
             }
         }
 
-        // Create a new task
-        const task = new Task(taskContent);
-
         // Save task to the database
-        task.save()
-            .then((data) => {
-                res.status(201).send(data);
-            })
-            .catch((error) => {
-                const message = error.message || 'An error occurred';
+        try {
+            const task = new Task(taskContent);
+            const newTask = await task.save();
 
-                res.status(500).send({
-                    error: {
-                        message,
-                        code: 500,
-                    },
-                });
+            res.status(201).json(newTask);
+        } catch (error) {
+            res.status(500).json({
+                error: {
+                    code: 500,
+                    message: error.message,
+                },
             });
+        }
     },
 
     // Retrieve a single task with id provided in the request
-    getOne: (req, res) => {
-        const taskId = req.params.id;
+    getOne: async (req, res) => {
         const projection = {
             _id: 1,
             title: 1,
@@ -81,52 +88,50 @@ module.exports = {
             created_at: 1,
         };
 
-        Task.findById(taskId, projection)
-            .then((task) => {
-                if (!task) {
-                    return res.status(404).send({
-                        error: {
-                            code: 404,
-                            message: 'Task not found',
-                        },
-                    });
-                }
-
-                res.status(200).send(task);
-            })
-            .catch((error) => {
-                const message = error.message || 'An error occurred';
-
-                if (error.kind === 'ObjectId') {
-                    return res.status(404).send({
-                        error: {
-                            code: 404,
-                            message: 'Task not found',
-                        },
-                    });
-                }
-
-                return res.status(500).send({
+        try {
+            const task = await Task.findById(req.params.id, projection);
+            if (!task) {
+                return res.status(404).json({
                     error: {
-                        message,
-                        code: 500,
+                        code: 404,
+                        message: 'Task not found',
                     },
                 });
+            }
+
+            res.json(task);
+        } catch (error) {
+            if (error.kind === 'ObjectId') {
+                return res.status(404).json({
+                    error: {
+                        code: 404,
+                        message: 'Task not found',
+                    },
+                });
+            }
+
+            res.status(500).json({
+                error: {
+                    code: 500,
+                    message: error.message || 'An error occurred',
+                },
             });
+        }
     },
 
     // Update a single task with id provided in the request
-    update: (req, res) => {
+    update: async (req, res) => {
         const taskId = req.params.id;
 
-        const result = updateSchema.validate(
+        const { error: validationError } = updateSchema.validate(
             req.body,
             config.get('joi.options')
         );
-        if (result.error) {
+
+        if (validationError) {
             return res
                 .status(400)
-                .send(helpers.formatValidationErrors(result.error));
+                .json(helpers.formatValidationErrors(validationError));
         }
 
         const taskContent = {};
@@ -137,76 +142,73 @@ module.exports = {
             }
         }
 
-        // Find task and update it
-        Task.findByIdAndUpdate(taskId, taskContent, { new: true })
-            .then((task) => {
-                if (!task) {
-                    return res.status(404).send({
-                        error: {
-                            code: 404,
-                            message: 'Task not found',
-                        },
-                    });
-                }
+        // Find a task and update it
+        try {
+            const updatedTask = await Task.findByIdAndUpdate(
+                taskId,
+                taskContent,
+                { new: true }
+            );
 
-                res.status(200).send(task);
-            })
-            .catch((error) => {
-                const message = error.message || 'An error occurred';
-
-                if (error.kind === 'ObjectId') {
-                    return res.status(404).send({
-                        error: {
-                            code: 404,
-                            message: 'Task not found',
-                        },
-                    });
-                }
-
-                return res.status(500).send({
+            if (!updatedTask) {
+                return res.status(404).json({
                     error: {
-                        message,
-                        code: 500,
+                        code: 404,
+                        message: 'Task not found',
                     },
                 });
+            }
+
+            res.json(updatedTask);
+        } catch (error) {
+            if (error.kind === 'ObjectId') {
+                return res.status(404).json({
+                    error: {
+                        code: 404,
+                        message: 'Task not found',
+                    },
+                });
+            }
+
+            res.status(500).json({
+                error: {
+                    code: 500,
+                    message: error.message || 'An error occurred',
+                },
             });
+        }
     },
 
     // Delete a single task with id provided in the request
-    delete: (req, res) => {
-        const taskId = req.params.id;
-
-        Task.findByIdAndDelete(taskId)
-            .then((task) => {
-                if (!task) {
-                    return res.status(404).send({
-                        error: {
-                            code: 404,
-                            message: 'Task not found',
-                        },
-                    });
-                }
-
-                res.status(204).send();
-            })
-            .catch((error) => {
-                const message = error.message || 'An error occurred';
-
-                if (error.kind === 'ObjectId' || error.name === 'NotFound') {
-                    return res.status(404).send({
-                        error: {
-                            code: 404,
-                            message: 'Task not found',
-                        },
-                    });
-                }
-
-                return res.status(500).send({
+    delete: async (req, res) => {
+        try {
+            const deletedTask = await Task.findByIdAndDelete(req.params.id);
+            if (!deletedTask) {
+                return res.status(404).json({
                     error: {
-                        message,
-                        code: 500,
+                        code: 404,
+                        message: 'Task not found',
                     },
                 });
+            }
+
+            res.json(deletedTask);
+        } catch (error) {
+            if (error.kind === 'ObjectId' || error.name === 'NotFound') {
+                return res.status(404).json({
+                    error: {
+                        code: 404,
+                        message: 'Task not found',
+                    },
+                });
+            }
+
+            res.status(500).json({
+                error: {
+                    code: 500,
+                    message: error.message || 'An error occurred',
+                },
             });
+        }
     },
 };

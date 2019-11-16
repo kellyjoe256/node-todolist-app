@@ -8,6 +8,7 @@ const keys = ['title', 'priority', 'completed', 'start_date', 'due_date'];
 
 /* eslint-disable comma-dangle */
 /* eslint-disable consistent-return */
+
 module.exports = {
     // Retrieve and return all tasks from the database
     getAll: async (req, res) => {
@@ -63,9 +64,9 @@ module.exports = {
         // Save task to the database
         try {
             const task = new Task(taskContent);
-            const newTask = await task.save();
+            await task.save();
 
-            res.status(201).json(newTask);
+            res.status(201).json(task);
         } catch (error) {
             res.status(500).json({
                 error: {

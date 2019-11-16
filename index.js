@@ -1,3 +1,4 @@
+const cors = require('cors');
 const config = require('config');
 const morgan = require('morgan');
 const express = require('express');
@@ -18,6 +19,9 @@ app.use(bodyParser.json());
 
 // morgan
 app.use(morgan('tiny'));
+
+// enable CORS
+app.use(cors());
 
 mongoose.Promise = global.Promise;
 

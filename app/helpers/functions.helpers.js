@@ -38,8 +38,8 @@ const generatePaginationMeta = (page, perPage, totalCount) => {
         last_page: totalPages,
         total_pages: totalPages,
         current_page: page,
-        previous_page: page - 1,
-        next_page: page + 1,
+        previous_page: !(page - 1 < 1) ? page - 1 : null,
+        next_page: page + 1 <= totalPages ? page + 1 : null,
         has_previous: page - 1 >= 1,
         has_next: page + 1 <= totalPages,
     };

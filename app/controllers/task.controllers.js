@@ -22,7 +22,7 @@ module.exports = {
         }
 
         try {
-            const sort = { due_date: 1 };
+            const sort = { due_date: 1, created_at: -1 };
             const projection = { updated_at: 0 };
             const totalTasks = await Task.countDocuments(search);
             const tasks = await Task.find(search, projection)
